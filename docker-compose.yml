@@ -1,0 +1,135 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: shopping-list-postgres
+    environment:
+      POSTGRES_DB: shopping_list_db
+      POSTGRES_USER: shopping_user
+      POSTGRES_PASSWORD: shopping_pass_2024
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - shopping-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shopping_user -d shopping_list_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: shopping-list-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - shopping-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  culmen:
+    build:
+      context: .
+      dockerfile: ./culmen/Dockerfile
+    container_name: omnipotentia-culmen
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shopping_list_db
+      SPRING_DATASOURCE_USERNAME: shopping_user
+      SPRING_DATASOURCE_PASSWORD: shopping_pass_2024
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - shopping-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  shopping-service:
+    build:
+      context: .
+      dockerfile: ./shopping-service/Dockerfile
+    container_name: shopping-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shopping_list_db
+      SPRING_DATASOURCE_USERNAME: shopping_user
+      SPRING_DATASOURCE_PASSWORD: shopping_pass_2024
+      CORE_API_URL: http://culmen:8080
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      culmen:
+        condition: service_healthy
+    networks:
+      - shopping-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: ./ai-service/Dockerfile
+    container_name: ai-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      culmen:
+        condition: service_healthy
+    networks:
+      - shopping-network
+
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: ./telegram-bot-service/Dockerfile
+    container_name: telegram-bot
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME}
+      CORE_API_URL: http://culmen:8080
+      SHOPPING_API_URL: http://shopping-service:8081
+      AI_SERVICE_URL: http://ai-service:8083
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - culmen
+      - shopping-service
+      - ai-service
+    networks:
+      - shopping-network
+
+networks:
+  shopping-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,95 @@
+# ================================
+# Secrets & Environment Variables
+# ================================
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# ================================
+# AI / Planning docs (not tracked)
+# ================================
+ARCHITECTURE.md
+CLAUDE.md
+docs/
+
+# ================================
+# Java / Maven
+# ================================
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Maven wrapper
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ================================
+# Spring Boot
+# ================================
+**/application-local.yml
+**/application-local.properties
+**/application-dev.yml
+**/application-dev.properties
+HELP.md
+
+# ================================
+# IDE - IntelliJ IDEA
+# ================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# IDE - Eclipse / STS
+.classpath
+.project
+.settings/
+bin/
+.factorypath
+
+# IDE - VS Code
+.vscode/
+!.vscode/extensions.json
+
+# ================================
+# Docker
+# ================================
+docker/postgres/data/
+docker/redis/data/
+docker-compose.override.yml
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+*.log.*
+spring.log
+
+# ================================
+# OS
+# ================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ================================
+# Test & Coverage
+# ================================
+**/surefire-reports/
+**/failsafe-reports/
+coverage/
+.jacoco/
+
+# ================================
+# Build outputs
+# ================================
+dist/
+build/
