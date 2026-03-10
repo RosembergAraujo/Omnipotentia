@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/shopping_list_db
+
+logging:
+  level:
+    com.berg.shopping: INFO

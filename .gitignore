@@ -45,7 +45,7 @@ HELP.md
 *.iws
 *.iml
 *.ipr
-out/
+/out/
 
 # IDE - Eclipse / STS
 .classpath
