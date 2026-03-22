@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: culmen
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shopping_list_db
+    username: shopping_user
+    password: shopping_pass_2024
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+
+server:
+  port: 8080
+
+jwt:
+  secret: change-me-to-a-random-256-bit-secret-key-before-running
+  expiration: 86400000  # 24h in ms
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    com.berg.culmen: DEBUG
