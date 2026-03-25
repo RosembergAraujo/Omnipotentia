@@ -1,4 +1,4 @@
-package com.berg.culmen.config;
+package com.berg.ai.config;
 
 import com.berg.common.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,6 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/api/v1/users").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
