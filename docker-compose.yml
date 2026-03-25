@@ -59,7 +59,7 @@ services:
     networks:
       - shopping-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -84,7 +84,7 @@ services:
     networks:
       - shopping-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -99,6 +99,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash-lite}
       JWT_SECRET: ${JWT_SECRET}
     depends_on:
       culmen:
@@ -123,6 +124,16 @@ services:
       - culmen
       - shopping-service
       - ai-service
+    networks:
+      - shopping-network
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9999:8080"
     networks:
       - shopping-network
 

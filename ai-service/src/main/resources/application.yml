@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: ai-service
+
+server:
+  port: 8083
+
+jwt:
+  secret: change-me-to-a-random-256-bit-secret-key-before-running
+  expiration: 86400000  # 24h in ms
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:your-gemini-api-key-here}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    base-url: https://generativelanguage.googleapis.com/v1beta
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    com.berg.ai: DEBUG
